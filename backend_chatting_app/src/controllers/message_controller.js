@@ -1,6 +1,7 @@
 import { Message } from "../model/message_model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { User } from "../model/user_model.js";
 import { asynchandler } from "../utils/AsyncHandler.js";
 import { uploadOncloudinary } from "../utils/uploadOnCloudinary.js";
 
@@ -21,15 +22,14 @@ const getMessages = asynchandler(async(req,res,next)=>{
   const { id: userToChatId } = req.params;
   const myId = req.user._id;
 //it will help to i find the message for both i send the message or other persons send the message
-  const messages = await Message.find({
-    $or: [
-      { senderId: myId, recieverId: userToChatId },
-      { senderId: userToChatId, recieverId: myId },
-    ],
-  })
-    .sort({ createdAt: 1 }) // Oldest to newest
-    .select("senderId receiverId text image createdAt"); // Optional
-
+const messages = await Message.find({
+  $or: [
+    { senderId: myId, receiverId: userToChatId },  
+    { senderId: userToChatId, receiverId: myId },  
+  ],
+})
+  .sort({ createdAt: 1 })
+  .select("senderId receiverId text image createdAt");
   res.status(200).json(new ApiResponse(200,messages,"messages fetched succesfully"));
 } catch (error) {
   console.error("Error in getMessages controller:", error.message);
@@ -40,15 +40,18 @@ const getMessages = asynchandler(async(req,res,next)=>{
 
 const sendMessage = asynchandler(async(req,res,next)=>{
    try {
-     const {id : receiverId} = req.params
-     const {text,image} = req.body
+     const {id:receiverId} = req.params
+     const {text} = req.body
+      const image = req?.file?.path;
      const senderId = req.user._id
-     
+
+     //console.log(text,image)
+
      let imageUrl ;
      if(image){
       imageUrl = await uploadOncloudinary(image)
      }
-
+   ////console.log(text,image)
      const newMessage = await Message.create({
       senderId,
       receiverId: receiverId,

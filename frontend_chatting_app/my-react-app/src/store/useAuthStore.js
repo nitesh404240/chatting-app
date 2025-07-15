@@ -10,7 +10,7 @@ export const useAuthStore = create( (set) => ({
     isUpdatingProfilepic: false,
     isUpdatingPassword: false,
     isCheckingAuth: true,
-
+    OnlineUsers : [],
       setLoginEmailError: (message) => set({ loginEmailError: message }),
       setLoginPasswordError: (message) => set({ loginPasswordError: message }),
       clearLoginErrors: () => set({ loginEmailError: "", loginPasswordError: "" }),

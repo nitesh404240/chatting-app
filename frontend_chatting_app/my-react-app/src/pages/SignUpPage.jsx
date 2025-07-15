@@ -140,7 +140,7 @@ const SignUpPage = () => {
 
               <button type='submit' className="btn btn-primary w-full" disabled = {isSigningUp}>
                   {isSigningUp ? (
-                    <> <Loader2 className="size-5 animate-spin"/>"loading..."</>
+                    <> <Loader2 className="size-5 animate-spin"/></>
                   ):("Create account")}
               </button>
              
