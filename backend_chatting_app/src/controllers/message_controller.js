@@ -4,6 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { User } from "../model/user_model.js";
 import { asynchandler } from "../utils/AsyncHandler.js";
 import { uploadOncloudinary } from "../utils/uploadOnCloudinary.js";
+import { getRecieverSockeId,io } from "../utils/Socketio.js";
 
 const getUserForSidebar = asynchandler(async(req,res,next)=>{
 try {
@@ -60,6 +61,13 @@ const sendMessage = asynchandler(async(req,res,next)=>{
      })
      
 //in sending message we will giving real time functionalities 
+const recieverSocketId = getRecieverSockeId(receiverId);
+if(receiverId){
+  //this is one on one chat so we need to implement the io.to(recieverId)
+  //  bcz io.emit() used to send the query all over the users
+  io.to(recieverSocketId).emit("newMessage",newMessage);
+}
+
 return res.status(200).json(new ApiResponse(200,newMessage,"message send successfully"))
 
    } catch (error) {

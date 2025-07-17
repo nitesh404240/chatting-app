@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { usechatstore } from '../store/useChatStore'
 import ChatContainerSkeleton from './Skeletons/ChatContainerSkeleton'
 import { useAuthStore } from '../store/useAuthStore'
@@ -9,15 +9,26 @@ import { formatDistanceToNow } from 'date-fns';
 
 
 const Chatcontainer = () => {
-  const {selectedUser,setSelectedUser,isMessageLoading,messages,getMessages} = usechatstore()
+  const {selectedUser,UnSubscribeFromMessages,SubscribeToMessages,setSelectedUser,isMessageLoading,messages,getMessages} = usechatstore()
   const {OnlineUsers,authUser} = useAuthStore()
+    const messageEndRef = useRef(null);
+
  useEffect(() => {
-  if (selectedUser?._id) {
+  
     getMessages(selectedUser._id);
-  }
-}, [selectedUser?._id]);
- console.log(messages)
-  if (isMessageLoading || !authUser) return <ChatContainerSkeleton />;
+      SubscribeToMessages();
+
+  return ()=>UnSubscribeFromMessages()
+}, [selectedUser?._id, getMessages, UnSubscribeFromMessages, SubscribeToMessages]);
+ 
+useEffect(() => {
+    if (messageEndRef.current && messages) {
+      messageEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages]);
+
+console.log("messsages are",messages)
+  if (isMessageLoading || !authUser?.data?._id) return <ChatContainerSkeleton />;
   return (
     <div className='flex-1 flex flex-col overflow-auto'>
       <Chatheader/>
@@ -54,8 +65,10 @@ const Chatcontainer = () => {
             </div>
         </div>
        ))}
+        <div ref={messageEndRef} />
        </div>
        <div className=''><MessageInput/></div>
+      
     </div>
   )
 }
